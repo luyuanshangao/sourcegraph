@@ -78,7 +78,7 @@ interface Props
     splitSearchModes: boolean
     interactiveSearchMode: boolean
     toggleSearchMode: (event: React.MouseEvent<HTMLAnchorElement>) => void
-    setVersionContext: (versionContext: string | undefined) => void
+    setVersionContext: (versionContext: string | undefined) => Promise<void>
     availableVersionContexts: VersionContext[] | undefined
 
     minimalNavLinks?: boolean

@@ -50,7 +50,7 @@ interface InteractiveModeProps
     /** Whether to hide the selected filters and add filter rows. */
     lowProfile: boolean
 
-    setVersionContext: (versionContext: string | undefined) => void
+    setVersionContext: (versionContext: string | undefined) => Promise<void>
     availableVersionContexts: VersionContext[] | undefined
 }
 

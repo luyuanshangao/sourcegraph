@@ -27,7 +27,7 @@ export interface VersionContextDropdownProps
         Pick<CaseSensitivityProps, 'caseSensitive'>,
         Partial<Pick<InteractiveSearchProps, 'filtersInQuery'>>,
         VersionContextProps {
-    setVersionContext: (versionContext: string | undefined) => void
+    setVersionContext: (versionContext: string | undefined) => Promise<void>
     availableVersionContexts: VersionContext[] | undefined
     history: H.History
     navbarSearchQuery: string
@@ -79,7 +79,9 @@ export const VersionContextDropdown: React.FunctionComponent<VersionContextDropd
 
     const updateValue = useCallback(
         (newValue?: string): void => {
-            setVersionContext(newValue)
+            setVersionContext(newValue).catch(error => {
+                console.error('Error sending initial versionContext to extensions', error)
+            })
             submitOnToggle(newValue)
         },
         [setVersionContext, submitOnToggle]

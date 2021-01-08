@@ -58,7 +58,6 @@ import { RepoSettingsAreaRoute } from './repo/settings/RepoSettingsArea'
 import { RepoSettingsSideBarGroup } from './repo/settings/RepoSettingsSidebar'
 import { FiltersToTypeAndValue } from '../../shared/src/search/interactive/util'
 import { generateFiltersQuery } from '../../shared/src/util/url'
-import { NotificationType } from '../../shared/src/api/client/services/notifications'
 import { VersionContext } from './schema/site.schema'
 import { globbingEnabledFromSettings } from './util/globbing'
 import {
@@ -78,6 +77,7 @@ import {
     updateCodeMonitor,
 } from './enterprise/code-monitoring/backend'
 import { aggregateStreamingSearch } from './search/stream'
+import { NotificationType } from '../../shared/src/api/contract'
 
 export interface SourcegraphWebAppProps extends KeyboardShortcutsProps {
     extensionAreaRoutes: readonly ExtensionAreaRoute[]
@@ -346,7 +346,9 @@ class ColdSourcegraphWebApp extends React.Component<SourcegraphWebAppProps, Sour
         )
 
         // Send initial versionContext to extensions
-        this.extensionsController.services.workspace.versionContext.next(this.state.versionContext)
+        this.setVersionContext(this.state.versionContext).catch(error => {
+            console.error('Error sending initial version context to extensions', error)
+        })
     }
 
     public componentWillUnmount(): void {
@@ -514,7 +516,7 @@ class ColdSourcegraphWebApp extends React.Component<SourcegraphWebAppProps, Sour
         })
     }
 
-    private setVersionContext = (versionContext: string | undefined): void => {
+    private setVersionContext = async (versionContext: string | undefined): Promise<void> => {
         const resolvedVersionContext = resolveVersionContext(versionContext, this.state.availableVersionContexts)
         if (!resolvedVersionContext) {
             localStorage.removeItem(LAST_VERSION_CONTEXT_KEY)
@@ -524,7 +526,11 @@ class ColdSourcegraphWebApp extends React.Component<SourcegraphWebAppProps, Sour
             this.setState({ versionContext: resolvedVersionContext, previousVersionContext: resolvedVersionContext })
         }
 
-        this.extensionsController.services.workspace.versionContext.next(resolvedVersionContext)
+        const extensionHostAPI = await this.extensionsController.extHostAPI
+        // Note: `setVersionContext` is now asynchronous since the version context
+        // is sent directly to extensions in the worker thread. This means that when the Promise
+        // is in a fulfilled state, we know that extensions have received the latest version context
+        await extensionHostAPI.setVersionContext(resolvedVersionContext)
     }
 }
 

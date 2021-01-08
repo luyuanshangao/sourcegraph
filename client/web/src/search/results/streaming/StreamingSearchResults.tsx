@@ -56,7 +56,7 @@ export interface StreamingSearchResultsProps
     history: H.History
     navbarSearchQueryState: QueryState
 
-    setVersionContext: (versionContext: string | undefined) => void
+    setVersionContext: (versionContext: string | undefined) => Promise<void>
     availableVersionContexts: VersionContext[] | undefined
     previousVersionContext: string | null
 
@@ -99,7 +99,9 @@ export const StreamingSearchResults: React.FunctionComponent<StreamingSearchResu
     useEffect(() => {
         const resolvedContext = resolveVersionContext(versionContext, availableVersionContexts)
         if (resolvedContext !== currentVersionContext) {
-            setVersionContext(resolvedContext)
+            setVersionContext(resolvedContext).catch(error => {
+                console.error('Error sending version context to extensions', error)
+            })
         }
     }, [versionContext, currentVersionContext, setVersionContext, availableVersionContexts])
 
