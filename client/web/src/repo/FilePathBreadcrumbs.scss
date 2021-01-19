@@ -10,6 +10,7 @@
         min-width: 1em;
         max-width: fit-content;
         overflow: hidden;
+        white-space: nowrap;
         text-overflow: ellipsis;
         text-align: center;
     }
