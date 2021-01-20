@@ -42,8 +42,8 @@ type Request struct {
 	// It is parsed with time.Time.UnmarshalText.
 	Deadline string
 
-	// Endpoint(s) for reaching Zoekt, potentially space separated. See URL
-	// scheme description in endpoint.go:New(...)
+	// Endpoint(s) for reaching Zoekt. See description in
+	// endpoint.go:Static(...)
 	IndexerEndpoints []string
 }
 
